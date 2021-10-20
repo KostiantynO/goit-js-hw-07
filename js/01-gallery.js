@@ -48,8 +48,8 @@ const backBtn = galleryModal.querySelector('.back-btn');
 const getSrcForOriginalImg = ({ id, dataset: { source }, alt }) => {
   if (originalImg.id !== id) {
     originalImg.id = id;
-    console.log('getSrcForOriginalImg ~ id', id);
-    console.log('getSrcForOriginalImg ~ originalImg.id', originalImg.id);
+    // console.log('getSrcForOriginalImg ~ id', id);
+    // console.log('getSrcForOriginalImg ~ originalImg.id', originalImg.id);
   }
   originalImg.src = source;
   originalImg.alt = alt;
