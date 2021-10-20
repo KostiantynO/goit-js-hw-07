@@ -43,8 +43,13 @@
   cursor: zoom-in;
 }
 
+.gallery-modal {
+  position: relative;
+  padding: 5px 15px;
+}
+
 .gallery-modal__description {
-  margin-top: 0.3em;
+  margin: 0.3em 0;
   transform: translateX(50%);
   transition: transform var(--animation-duration) var(--timing-function);
   color: #fafafa;
@@ -54,4 +59,28 @@
   display: inline-block;
   transform: translateX(-50%);
   transition: transform var(--animation-duration) var(--timing-function);
+}
+
+.back-btn,
+.next-btn {
+  position: absolute;
+  top: 47%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  font-size: 40px;
+  border: none;
+  background-color: transparent;
+  color: bisque;
+  opacity: 0.6;
+}
+
+.back-btn {
+  left: 0;
+}
+
+.next-btn {
+  right: 0;
 }

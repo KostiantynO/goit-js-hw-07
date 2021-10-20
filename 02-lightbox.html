@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>SimpleLightbox library</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.9.0/simple-lightbox.min.css"
+      integrity="sha512-y3NISuXPWLtakXJJ2f4TpwJkvjbD8ud9hz398kDZB5eGGmIIufRcMhuz+/ld9L7zCmQheAZjtyfFLyN5w9P0rw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
     <link rel="stylesheet" href="css/common.css" />
     <link rel="stylesheet" href="css/styles.css" />
   </head>
@@ -14,6 +23,40 @@
     <!-- Add gallery items to this list -->
     <ul class="gallery"></ul>
 
-    <script src="js/02-lightbox.js" type="module"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/simplelightbox/2.9.0/simple-lightbox.min.js"
+      integrity="sha512-d3VUxSAz6ET/1m4LI8NrqHb25ziUKeYQHHyGPvx2Q6yD8Tuw4MP0oRXXYkGKh/nylBy2+7I1LF/WaDyLoAz1ug=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      type="module"
+      defer
+    ></script>
+
+    <script src="js/02-lightbox.js" type="module" defer></script>
+
+    <script type="text/javascript">
+      // name, value, expires, path, domain, secure
+      Set_Cookie('test', 'none', '', '/', '', '');
+
+      if (Get_Cookie('test')) {
+        document.write('cookies are currently enabled.');
+        /*
+    this is an example of a set cookie variable, if
+    you want to use this on the page or on another script
+    instead of writing to the page you would just check that value
+    for true or false and then do what you need to do.
+    */
+        cookie_set = true;
+        // and these are the parameters for Delete_Cookie:
+        // name, path, domain
+        // make sure you use the same parameters in Set and Delete Cookie.
+        Delete_Cookie('test', '/', '');
+      }
+      // if the Get_Cookie test fails, cookies are not enabled for this session.
+      else {
+        document.write('cookies are not currently enabled.');
+        cookie_set = false;
+      }
+    </script>
   </body>
 </html>
