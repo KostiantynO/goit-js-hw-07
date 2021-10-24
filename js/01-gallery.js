@@ -1,84 +1,119 @@
 import { galleryItems } from './gallery-items.js';
-const createGalleryMarkup = array =>
-  array
+const itemsCount = galleryItems.length;
+
+// Gallery
+const gallery = document.querySelector('.gallery');
+const galleryMarkup = makeMarkup(galleryItems);
+renderMarkup({ targetEl: gallery, markupToRender: galleryMarkup });
+
+// Modal
+const modalMarkup = `
+<button class="back-btn" back-btn type="button">◀</button>
+  <img data-idx="" src="" alt="" original-image>
+  <p class="gallery-modal__description"><span class="gallery-modal__span" image-desc></span></p>
+  <p class="gallery-modal__items-count"> <span class="gallery-modal__current-item" current-item>0</span>/${
+    itemsCount - 1
+  }</p>
+<button class="next-btn" next-btn type="button">▶</button>
+`;
+const modalOptions = {
+  className: 'gallery-modal',
+  onShow: onShowCallback,
+  onClose: onCloseCallback,
+};
+const modal = basicLightbox.create(modalMarkup, modalOptions);
+const backBtn = modal?.element()?.querySelector('[back-btn]');
+const origImg = modal?.element()?.querySelector('[original-image]');
+const imgDesc = modal?.element()?.querySelector('[image-desc]');
+const curItem = modal?.element()?.querySelector('[current-item]');
+const nextBtn = modal?.element()?.querySelector('[next-btn]');
+
+// onClickListener
+gallery.addEventListener('click', onImageClick);
+
+// gallery markup initial render
+function makeMarkup(galleryItemsObjectsArray) {
+  const bigString = galleryItemsObjectsArray
     .map(
-      ({ preview, original, description }, i) => `
-    <li class="gallery__item">
-      <a class="gallery__link" href="${original}">
-        <img
-          id="${'img' + i}"
-          class="gallery__image"
-          src="${preview}"
-          data-source="${original}"
-          alt="${description}"
-        />
-      </a>
-    </li>`,
+      ({ preview, original, description }, idx) =>
+        ` <li class="gallery__item">
+            <a class="gallery__link" href="${original}">
+              <img class="gallery__image" data-idx="${idx}" src="${preview}" data-source="${original}" alt="${description}">
+            </a>
+          </li>`,
     )
     .join('');
+  return bigString;
+}
+function renderMarkup({ markupToRender, targetEl }) {
+  targetEl.innerHTML = '';
+  targetEl.insertAdjacentHTML('beforeend', markupToRender);
+}
 
-const gallery = document.querySelector('.gallery');
+// on image click callback - open modal
+function onImageClick(event) {
+  event.preventDefault();
+  if (event.target.nodeName !== 'IMG') return;
 
-const galleryMarkup = createGalleryMarkup(galleryItems);
-gallery.insertAdjacentHTML('beforeend', galleryMarkup);
+  const {
+    dataset: { idx, source },
+    alt,
+  } = event.target;
 
-const modalMarkup = `
-<div class="gallery-modal">
-      <img class="gallery-modal__image" src="https://via.placeholder.com/640/480" alt="Description">
-      <p class="gallery-modal__description"><span class="gallery-modal__span">Picture</span></p>
-      <button class="back-btn gallery-modal__btn" type="button">◀</button>
-      <button class="next-btn gallery-modal__btn" type="button">▶</button>
-</div>
-`;
-
-const instance = basicLightbox.create(modalMarkup, {
-  onClose: () => {
-    document.removeEventListener('keydown', onEscCloseModal);
-    backBtn.removeEventListener('click', onBackBtnClickShowPreviousImg);
-    nextBtn.removeEventListener('click', onNextBtnClickShowNextImg);
-  },
-});
-
-const galleryModal = instance.element().querySelector('.gallery-modal');
-const originalImg = galleryModal.firstElementChild;
-const span = galleryModal.querySelector('.gallery-modal__span');
-const nextBtn = galleryModal.querySelector('.next-btn');
-const backBtn = galleryModal.querySelector('.back-btn');
-
-const getSrcForOriginalImg = ({ id, dataset: { source }, alt }) => {
-  if (originalImg.id !== id) {
-    originalImg.id = id;
-    // console.log('getSrcForOriginalImg ~ id', id);
-    // console.log('getSrcForOriginalImg ~ originalImg.id', originalImg.id);
+  if (origImg.idx !== idx) {
+    updateImg({ idx, source, alt });
   }
-  originalImg.src = source;
-  originalImg.alt = alt;
-  originalImg.classList.add('current-img');
-  span.textContent = alt;
-};
+  modal.show();
+}
 
-const onEscCloseModal = e => e.code === 'Escape' && instance.close();
+// // inner functions
+function updateImg({ idx, source, alt }) {
+  origImg.src = source;
+  origImg.alt = alt;
+  origImg.dataset.idx = idx;
+  imgDesc.textContent = alt;
+  curItem.textContent = idx;
+}
 
-const onBackBtnClickShowPreviousImg = e => {
-  const currentImg = document.getElementById(`${originalImg.id}`);
-  const previousImg = document.getElementById(`${originalImg.id.slice(3) - 1}`);
-  getSrcForOriginalImg(previousImg);
-};
-const onNextBtnClickShowNextImg = e => {};
+function idx(arg) {
+  const origIdx = parseInt(origImg.dataset.idx);
+  let index = arg === 'next' ? origIdx + 1 : origIdx - 1;
 
-const onModalOpen = e => {
-  e.preventDefault();
-  if (e.target.nodeName !== 'IMG') {
-    return;
+  if (index < 0) {
+    index = itemsCount - 1;
+  }
+  if (index >= itemsCount) {
+    index = 0;
   }
 
-  const previewImg = e.target;
-  getSrcForOriginalImg(previewImg);
-  instance.show();
+  return index;
+}
 
-  window.addEventListener('keydown', onEscCloseModal);
-  backBtn.addEventListener('click', onBackBtnClickShowPreviousImg);
-  nextBtn.addEventListener('click', onNextBtnClickShowNextImg);
-};
+function onPrevBtnClick() {
+  const prevIdx = idx();
+  const { original, description: alt } = galleryItems[prevIdx];
+  updateImg({ idx: prevIdx, source: original, alt });
+}
 
-gallery.addEventListener('click', onModalOpen);
+function onNextBtnClick() {
+  const nextIdx = idx('next');
+  const { original, description: alt } = galleryItems[nextIdx];
+  updateImg({ idx: nextIdx, source: original, alt });
+}
+
+// general modal ui callbacks
+function onShowCallback() {
+  nextBtn?.addEventListener('click', onNextBtnClick, { passive: true });
+  backBtn?.addEventListener('click', onPrevBtnClick, { passive: true });
+  document.addEventListener('keydown', onEscCloseModal, { passive: true });
+  document.body.style.overflow = 'hidden';
+}
+function onCloseCallback() {
+  nextBtn?.removeEventListener('click', onNextBtnClick, { passive: true });
+  backBtn?.removeEventListener('click', onPrevBtnClick, { passive: true });
+  document.removeEventListener('keydown', onEscCloseModal, { passive: true });
+  document.body.style.overflow = '';
+}
+function onEscCloseModal({ code }) {
+  code === 'Escape' && modal.close();
+}
